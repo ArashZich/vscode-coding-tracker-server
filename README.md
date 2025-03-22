@@ -1,107 +1,292 @@
-# Visual Studio Code Coding Tracker Server
+# سرور ردیابی کدنویسی Visual Studio Code
 
-<a href="https://www.npmjs.com/package/vscode-coding-tracker-server">
-<img src="https://img.shields.io/npm/v/vscode-coding-tracker-server.svg?style=flat-square" />
-</a>
-<a href="https://travis-ci.org/hangxingliu/vscode-coding-tracker-server">
-<img src="https://img.shields.io/travis/hangxingliu/vscode-coding-tracker-server/master.svg?style=flat-square&label=master" />
-</a>
-<a href="https://travis-ci.org/hangxingliu/vscode-coding-tracker-server">
-<img src="https://img.shields.io/travis/hangxingliu/vscode-coding-tracker-server/develop.svg?style=flat-square&label=dev" />
-</a>
+سرور برای افزونه ردیابی کدنویسی VS Code که فعالیت‌های کدنویسی شما را ثبت و تحلیل می‌کند.
 
-VSCode Coding Tracker extension server side program.    
+> لینک‌های مرتبط:  
+> [مخزن گیتهاب افزونه](https://github.com/ArashZich/vscode-coding-tracker-server)   
+> [افزونه در فروشگاه VSCode](https://marketplace.visualstudio.com/items?itemName=hangxingliu.vscode-coding-tracker)   
 
-> Links:  
-> [Extension side Github repo](https://github.com/hangxingliu/vscode-coding-tracker)   
-> [VSCode extensions marketplace](https://marketplace.visualstudio.com/items?itemName=hangxingliu.vscode-coding-tracker)   
->
-> Give me coffee for coding better via [Paypal](https://www.paypal.me/hangxingliu)   
-> *Your support encourage me to make my vscode extensions better and better! (and add more and more features)*
-
-## Screenshot
+## پیش‌نمایش
 
 ![screenshots_2](screenshots/2.jpg)
 
-## Current Version
+## دستورالعمل نصب و راه‌اندازی کامل
 
-### 0.7.0 (2018/05/xx) **Coding...**
+### پیش‌نیازها
 
-0. Support token files to declare multi-tokens
-	- [x] basic support
-	- [x] support computerId attributes for uploadToken
-	- [x] more unit tests
-	- [x] more and more unit tests
-1. More filter rules are supported.
-	- [ ] backend support
-	- [ ] frontend support
-		- [ ] start new front-end deveploment (replace pug to [preact jsx](https://preactjs.com/))
-2. Refactory I18N support placeholder to more readable (**maybe delay**)
-3. Merge file path and project path better.
-	- [x] unit test for report-v2
-	- [x] depends on file **reader with cache** and **pre-scan for finding projects**
-4. Optimize database reader (add cache for old files)
-	- [x] new intermediate layer for filesystem reading operation
-	- [x] add cache for old files by following modify time
-	- [x] add this layer into AnalyzeCore
-	- [x] unit tests
+- Docker
+- Docker Compose
 
-### 0.6.0 (2018/03/23)
+### 1. کلون کردن مخزن
 
-0. Support exporting/downloading report data as CSV format.
-1. Support adding association for projects (So you can merge report from different projects).
-2. Fix incorrect 24 hours report.
-3. Fix some wrong i18n on the UI.
-4. More compatible with old browsers and mobile browsers.
+```bash
+git clone https://github.com/YOUR_USERNAME/vscode-coding-tracker-server.git
+cd vscode-coding-tracker-server
+```
 
-## How To Install And Use
+### 2. ایجاد Dockerfile
 
-1. Make sure You have installed `Node.js` development environment included `npm`
-2. Install this server program
-	- Way 1 : Clone this repository and execute **`npm i`** in the folder where this README.md located 
-	- Way 2 : Using **`npm i vscode-coding-tracker-server`** anywhere you want to install to
-3. Execute **`npm start`** or **`node app`** to launch this server program. 
-	- You could give it more options like **`npm start -- ${MORE_SERVER_OPTIONS}`** if you start it by using `npm start`
-4. Open URL `http://domain:port/report?token=${YOUR_TOKEN}` to get coding report
-	- In default, URL in local is `http://127.0.0.1:10345/report?token=${YOUR_TOKEN}`
-	- If you using `--public-report` option to launch server, you could ignore the query parameter `token` in above URL
+فایل `Dockerfile` را با محتوای زیر ایجاد کنید:
 
-> More server option things:
->
-> `--local`: It means server bind address on `127.0.0.1` when server listening.
-> **(Other computer could not upload data and visit report page in this mode)**
->
-> `--random-token`: It means server will using a 8 length random string as API/upload token
->  **even if you giving a token by `-t` option**
->
-> `--public-report`: It means anyone could visit report page without token
-> 
-> **more options information you could find by using command `node app --help`**
+```dockerfile
+FROM node:16-alpine
 
-more version information: [CHANGELOG.md](CHANGELOG.md)
+WORKDIR /app
+COPY . .
+RUN npm install
+VOLUME /app/database
+VOLUME /app/tokens
+EXPOSE 10345
 
-## Contributing
+CMD ["node", "app.js", "--output=/app/database", "--token-file=/app/tokens/token.json", "--public-report"]
+```
 
-It is **necessary** to read [CONTRIBUTING.md](CONTRIBUTING.md) before **contributing codes/translations or building codes**
+### 3. ایجاد docker-compose.yml
 
-### Editing/Modifying/Buidling codes
+فایل `docker-compose.yml` را با محتوای زیر ایجاد کنید:
 
-Goto chapter *Editing, Building, Running and Testing* in [CONTRIBUTING.md](CONTRIBUTING.md).
+```yaml
+version: '3'
 
-### Files manifest
+services:
+  coding-tracker:
+    build: .
+    restart: always
+    ports:
+      - "10345:10345"
+    volumes:
+      - ./database:/app/database
+      - ./tokens:/app/tokens
+```
 
-redirect to [FILES.md](docs/FILES.md)
+### 4. ایجاد توکن ادمین
 
-## Author
+توکن ادمین را با دستور زیر تولید کنید:
 
-[LiuYue](https://github.com/hangxingliu)
+```bash
+openssl rand -base64 64
+```
 
-## Contributors
+نمونه خروجی:
+```
+fQ8gBKVfo+HB0IMafzuONtPEaFRglBuiTweN1mqcnJ76qLydHMSeCeTkTHauPqW/+WD2LFcncdUYuyDnvgwVvQ==
+```
 
-[Dolgishev Viktor (@vdolgishev)][vdolgishev]
+### 5. ایجاد فایل توکن
 
-## License
+پوشه `tokens` را ایجاد کنید و فایل `token.json` را درون آن قرار دهید:
+
+```bash
+mkdir -p tokens
+```
+
+فایل `tokens/token.json` را با محتوای زیر ایجاد کنید (توکن خود را جایگزین کنید):
+
+```json
+{
+  "adminToken": [{
+    "token": "fQ8gBKVfo+HB0IMafzuONtPEaFRglBuiTweN1mqcnJ76qLydHMSeCeTkTHauPqW/+WD2LFcncdUYuyDnvgwVvQ=="
+  }],
+  "viewReportToken": "public",
+  "uploadToken": []
+}
+```
+
+### 6. ساخت و راه‌اندازی کانتینر
+
+```bash
+docker-compose up -d --build
+```
+
+پس از اجرای دستور بالا، سرور روی پورت 10345 در دسترس خواهد بود.
+
+## مدیریت کاربران
+
+### افزودن کاربر جدید
+
+برای هر کاربر جدید، یک توکن بسازید:
+
+```bash
+openssl rand -base64 64
+```
+
+سپس فایل `tokens/token.json` را ویرایش کنید و کاربر جدید را به بخش `uploadToken` اضافه کنید:
+
+```json
+{
+  "adminToken": [{
+    "token": "fQ8gBKVfo+HB0IMafzuONtPEaFRglBuiTweN1mqcnJ76qLydHMSeCeTkTHauPqW/+WD2LFcncdUYuyDnvgwVvQ=="
+  }],
+  "viewReportToken": "public",
+  "uploadToken": [
+    {
+      "remark": "کاربر اول",
+      "token": "tJo9N7Nob96J+N2DXdqAzKUNxMnKsB+D3vZ6xZ+ozWY81cqrGJVuF4kqpvv/wiI7zR4ztaazFkJgkOtfIctEmA==",
+      "computerId": ["PC-User1"]
+    },
+    {
+      "remark": "کاربر دوم",
+      "token": "m5B4oTR5C2PXklqEPN+ekMWE0W9FXEgQkXKVB4z8G0VMjZTLsXqhZ3RN5v+FGPkBI+zvP0I5AxQP84JMpP/k9Q==",
+      "computerId": ["Laptop-User2"]
+    }
+  ]
+}
+```
+
+پس از ویرایش فایل، کانتینر را راه‌اندازی مجدد کنید:
+
+```bash
+docker-compose restart
+```
+
+### حذف کاربر
+
+برای حذف کاربر، کافی است بخش مربوط به آن کاربر را از آرایه `uploadToken` در فایل `tokens/token.json` حذف کنید و کانتینر را راه‌اندازی مجدد کنید.
+
+## تنظیمات VSCode برای کاربران
+
+هر کاربر باید افزونه [VSCode Coding Tracker](https://marketplace.visualstudio.com/items?itemName=hangxingliu.vscode-coding-tracker) را نصب کند و سپس تنظیمات زیر را در VSCode خود اضافه کند:
+
+برای کاربر اول:
+```json
+"codingTracker.serverURL": "http://YOUR_SERVER_IP:10345/",
+"codingTracker.uploadToken": "tJo9N7Nob96J+N2DXdqAzKUNxMnKsB+D3vZ6xZ+ozWY81cqrGJVuF4kqpvv/wiI7zR4ztaazFkJgkOtfIctEmA==",
+"codingTracker.computerId": "PC-User1"
+```
+
+برای کاربر دوم:
+```json
+"codingTracker.serverURL": "http://YOUR_SERVER_IP:10345/",
+"codingTracker.uploadToken": "m5B4oTR5C2PXklqEPNo3ekMWE0W9FXEgQkXKVB4z8G0VMjZTLsXqhZ3RN5v+FGPkBI+zvP0I5AxQP84JMpP/k9Q==",
+"codingTracker.computerId": "Laptop-User2"
+```
+
+## دسترسی به گزارش‌ها
+
+گزارش‌ها را می‌توانید در آدرس زیر مشاهده کنید:
+```
+http://YOUR_SERVER_IP:10345/report
+```
+
+## دستورات یکجا برای راه‌اندازی سریع
+
+کد زیر را کپی کرده و در ترمینال اجرا کنید:
+
+```bash
+# کلون کردن مخزن (آدرس فورک خود را جایگزین کنید)
+git clone https://github.com/YOUR_USERNAME/vscode-coding-tracker-server.git
+cd vscode-coding-tracker-server
+
+# ایجاد Dockerfile
+cat > Dockerfile << 'EOF'
+FROM node:16-alpine
+
+WORKDIR /app
+COPY . .
+RUN npm install
+VOLUME /app/database
+VOLUME /app/tokens
+EXPOSE 10345
+
+CMD ["node", "app.js", "--output=/app/database", "--token-file=/app/tokens/token.json", "--public-report"]
+EOF
+
+# ایجاد docker-compose.yml
+cat > docker-compose.yml << 'EOF'
+version: '3'
+
+services:
+  coding-tracker:
+    build: .
+    restart: always
+    ports:
+      - "10345:10345"
+    volumes:
+      - ./database:/app/database
+      - ./tokens:/app/tokens
+EOF
+
+# ساخت توکن ادمین
+ADMIN_TOKEN=$(openssl rand -base64 64)
+echo "توکن ادمین شما: $ADMIN_TOKEN"
+
+# ایجاد فایل توکن
+mkdir -p tokens
+cat > tokens/token.json << EOF
+{
+  "adminToken": [{
+    "token": "$ADMIN_TOKEN"
+  }],
+  "viewReportToken": "public",
+  "uploadToken": []
+}
+EOF
+
+# ساخت و راه‌اندازی کانتینر
+docker-compose up -d --build
+
+echo "سرور VSCode Coding Tracker با موفقیت راه‌اندازی شد!"
+echo "آدرس گزارش‌ها: http://$(hostname -I | awk '{print $1}'):10345/report"
+```
+
+## دستور افزودن کاربر جدید
+
+```bash
+# ساخت توکن برای کاربر جدید
+USER_TOKEN=$(openssl rand -base64 64)
+
+# اطلاعات کاربر
+USER_NAME="نام کاربر"
+COMPUTER_ID="شناسه کامپیوتر"
+
+# افزودن کاربر به فایل توکن
+cat > /tmp/add_user.js << EOF
+const fs = require('fs');
+const tokenFile = './tokens/token.json';
+const token = fs.readFileSync(tokenFile, 'utf8');
+const data = JSON.parse(token);
+data.uploadToken.push({
+  "remark": "$USER_NAME",
+  "token": "$USER_TOKEN",
+  "computerId": ["$COMPUTER_ID"]
+});
+fs.writeFileSync(tokenFile, JSON.stringify(data, null, 2));
+console.log('کاربر با موفقیت اضافه شد.');
+EOF
+
+node /tmp/add_user.js
+rm /tmp/add_user.js
+
+# راه‌اندازی مجدد سرور
+docker-compose restart
+
+echo "کاربر جدید با موفقیت اضافه شد!"
+echo "-------------------------------------"
+echo "نام: $USER_NAME"
+echo "شناسه کامپیوتر: $COMPUTER_ID"
+echo "توکن: $USER_TOKEN"
+echo "-------------------------------------"
+echo ""
+echo "تنظیمات VSCode:"
+echo '"codingTracker.serverURL": "http://YOUR_SERVER_IP:10345/",'
+echo '"codingTracker.uploadToken": "'$USER_TOKEN'",'
+echo '"codingTracker.computerId": "'$COMPUTER_ID'"'
+```
+
+## عیب‌یابی
+
+اگر با مشکلی مواجه شدید، می‌توانید لاگ‌های کانتینر را بررسی کنید:
+
+```bash
+docker-compose logs -f
+```
+
+برای راه‌اندازی مجدد سرور:
+
+```bash
+docker-compose restart
+```
+
+## لایسنس
 
 [GPL-3.0](LICENSE)
-
-[vdolgishev]: https://github.com/vdolgishev

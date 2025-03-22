@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  coding-tracker:
+    build: .
+    restart: always
+    ports:
+      - "10345:10345"
+    volumes:
+      - ./database:/app/database
+      - ./tokens:/app/tokens
