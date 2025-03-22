@@ -93,7 +93,7 @@ EOF
 
 4. **ایجاد توکن ادمین**:
 ```bash
-openssl rand -base64 64
+openssl rand -base64 12 | tr -dc '2-9A-HJ-NP-Za-km-z' | head -c 8; echo
 ```
 
 5. **ایجاد فایل توکن**:
@@ -175,10 +175,10 @@ docker-compose up -d --build
 
 ### افزودن کاربر جدید
 
-برای هر کاربر جدید، یک توکن بسازید:
+برای هر کاربر جدید، یک توکن 8 کاراکتری بسازید:
 
 ```bash
-openssl rand -base64 64
+openssl rand -base64 12 | tr -dc '2-9A-HJ-NP-Za-km-z' | head -c 8; echo
 ```
 
 سپس فایل `tokens/token.json` را ویرایش کنید و کاربر جدید را به بخش `uploadToken` اضافه کنید:
