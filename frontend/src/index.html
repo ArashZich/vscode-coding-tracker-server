@@ -1,82 +1,113 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="<%= description %>" />
+		<meta name="author" content="<%= author %>" />
+		<title><%= title.index %></title>
 
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="<%= description %>">
-	<meta name="author" content="<%= author %>">
-	<title><%= title.index %></title>
-
-	<link rel="stylesheet" href="../lib/bootstrap/bootstrap.min.css"
-		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" />
-	<link rel="stylesheet" href="../lib/bootstrap-datepicker/bootstrap-datepicker3.standalone.min.css"
-		integrity="sha384-IrYQ1tcN+l/QXghelUH14hl/3fhLb5R5zi/2yYd1+rPduPtz9Fno8Vk+KDAlYouL"/>
-	<link rel="stylesheet" href="../lib/ionicons/css/ionicons.min.css"
-		integrity="sha384-4r9SMzlCiUSd92w9v1wROFY7DlBc5sDYaEBhcCJR7Pm2nuzIIGKVRtYWlf6w+GG4"/>
-	<link href="sass/index.css" rel="stylesheet" />
-
-</head>
-<body>
-
-	<%- include("modules/top_navbar.pug") %>
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-12 col-md-3 col-xl-2 layout-sidebar">
-				<%- include("modules/sidebar.pug") %>
-			</div>
-			<main class="col-12 col-md-9 col-xl-10 mt-2 layout-content" role="main">
-				<div class="body-include-welcome">
-					<%- include("modules/startup_welcome.pug") %>
-					<div id="bodyContainer">
-						<%- include("modules/page/overview.pug") %>
-						<%- include("modules/page/24hours.pug") %>
-						<%- include("modules/page/projects_index.pug") %>
-						<%- include("modules/page/projects_sub.pug") %>
-						<%- include("modules/page/languages.pug") %>
-						<%- include("modules/page/vcs.pug") %>
+		<link
+			rel="stylesheet"
+			href="../lib/bootstrap/bootstrap.min.css"
+			integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+		/>
+		<link
+			rel="stylesheet"
+			href="../lib/bootstrap-datepicker/bootstrap-datepicker3.standalone.min.css"
+			integrity="sha384-IrYQ1tcN+l/QXghelUH14hl/3fhLb5R5zi/2yYd1+rPduPtz9Fno8Vk+KDAlYouL"
+		/>
+		<link
+			rel="stylesheet"
+			href="../lib/ionicons/css/ionicons.min.css"
+			integrity="sha384-4r9SMzlCiUSd92w9v1wROFY7DlBc5sDYaEBhcCJR7Pm2nuzIIGKVRtYWlf6w+GG4"
+		/>
+		<link href="sass/index.css" rel="stylesheet" />
+	</head>
+	<body>
+		<%- include("modules/top_navbar.pug") %>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12 col-md-3 col-xl-2 layout-sidebar">
+					<%- include("modules/sidebar.pug") %>
+				</div>
+				<main
+					class="col-12 col-md-9 col-xl-10 mt-2 layout-content"
+					role="main"
+				>
+					<div class="body-include-welcome">
+						<%- include("modules/startup_welcome.pug") %>
+						<div id="bodyContainer">
+							<%- include("modules/page/overview.pug") %> <%-
+							include("modules/page/24hours.pug") %> <%-
+							include("modules/page/projects_index.pug") %> <%-
+							include("modules/page/projects_sub.pug") %> <%-
+							include("modules/page/languages.pug") %> <%-
+							include("modules/page/vcs.pug") %> <%-
+							include("modules/page/productivity.pug") %>
+						</div>
 					</div>
-				</div>
-				<div class="row">
-					<%- include("modules/bottom_info.html") %>
-				</div>
-			</main>
+					<div class="row">
+						<%- include("modules/bottom_info.html") %>
+					</div>
+				</main>
+			</div>
 		</div>
-	</div>
 
-	<!-- dialogues -->
-	<div class="modal-container">
-		<%- include("modules/dialog/status.pug") %>
-		<%- include("modules/dialog/share.pug") %>
-		<%- include("modules/dialog/associate_projects.pug") %>
-		<%- include("modules/dialog/export_csv.pug") %>
-		<%- include("modules/dialog/custom_date_range.pug") %>
-		<%- include("modules/dialog/24_hours_from.pug") %>
-	</div>
+		<!-- dialogues -->
+		<div class="modal-container">
+			<%- include("modules/dialog/status.pug") %> <%-
+			include("modules/dialog/share.pug") %> <%-
+			include("modules/dialog/associate_projects.pug") %> <%-
+			include("modules/dialog/export_csv.pug") %> <%-
+			include("modules/dialog/custom_date_range.pug") %> <%-
+			include("modules/dialog/24_hours_from.pug") %>
+		</div>
 
-	<!-- javascripts -->
-	<script src="../lib/jquery/jquery.min.js"
-		integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT"></script>
-	<script src="../lib/bootstrap/popper.min.js"
-		integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"></script>
-	<script src="../lib/bootstrap/bootstrap.min.js"
-		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"></script>
-	<script src="../lib/bootstrap-datepicker/bootstrap-datepicker.min.js"
-		integrity="sha384-w48xMCwgWQu0zb3PvQI/rK5lfN6G+lSWu+qI4ukKZg3I5Xx3/VWA8IiaQ8O7tZur"></script>
-	<script src="../lib/echarts/dist/echarts.min.js"></script>
+		<!-- javascripts -->
+		<script
+			src="../lib/jquery/jquery.min.js"
+			integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT"
+		></script>
+		<script
+			src="../lib/bootstrap/popper.min.js"
+			integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+		></script>
+		<script
+			src="../lib/bootstrap/bootstrap.min.js"
+			integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+		></script>
+		<script
+			src="../lib/bootstrap-datepicker/bootstrap-datepicker.min.js"
+			integrity="sha384-w48xMCwgWQu0zb3PvQI/rK5lfN6G+lSWu+qI4ukKZg3I5Xx3/VWA8IiaQ8O7tZur"
+		></script>
+		<script src="../lib/echarts/dist/echarts.min.js"></script>
 
-<script>
-(function(){
-	var d=document,l=console.log;var s=d.createElement('script');s.src='js/index.js';
-	function m(){setTimeout(function(){l("loading main script file ...");d.head.appendChild(s);},15);}
-	if(typeof $ == "undefined") {alert("Oops, Your browser is too outdated to support!\n  (Becuase it can't even load jQuery)");}
-	else if(!String.prototype.endsWith){l("loading core-js polyfille ...");$.getScript('js/polyfill.js', m);}
-	else{m();}
-})();
-</script>
-	<script async defer src="https://buttons.github.io/buttons.js"></script>
-
-</body>
-
+		<script>
+			(function () {
+				var d = document,
+					l = console.log;
+				var s = d.createElement("script");
+				s.src = "js/index.js";
+				function m() {
+					setTimeout(function () {
+						l("loading main script file ...");
+						d.head.appendChild(s);
+					}, 15);
+				}
+				if (typeof $ == "undefined") {
+					alert(
+						"Oops, Your browser is too outdated to support!\n  (Becuase it can't even load jQuery)"
+					);
+				} else if (!String.prototype.endsWith) {
+					l("loading core-js polyfille ...");
+					$.getScript("js/polyfill.js", m);
+				} else {
+					m();
+				}
+			})();
+		</script>
+		<script async defer src="https://buttons.github.io/buttons.js"></script>
+	</body>
 </html>

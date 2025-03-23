@@ -1,0 +1,37 @@
+mixin chartBlock(id, height)
+  div(data-chart=id style="height: "+height)
+
+div.page-productivity(style="display: none")
+  .row
+    .col-12.mb-4
+      .card
+        .card-body
+          h4.card-title Advanced Analytics Dashboard
+          .card-text
+            +chartBlock("productivity_chart", "400px")
+          #productivity-stats.mt-3.p-3.border.rounded.bg-light
+    .col-12.mb-4
+      .card
+        .card-body
+          h4.card-title Activity Heatmap
+          .card-text
+            +chartBlock("activity_heatmap", "400px")
+    .col-md-6.mb-4
+      .card
+        .card-body
+          h4.card-title Weekly Trends
+          .card-text
+            +chartBlock("weekly_trend", "400px")
+    .col-md-6.mb-4
+      .card
+        .card-body
+          h4.card-title Weekday vs Weekend
+          .card-text
+            +chartBlock("weekday_vs_weekend", "400px")
+          #weekday-weekend-stats.mt-3.p-3.border.rounded.bg-light
+    .col-12.mb-4
+      .card
+        .card-body
+          h4.card-title Language Trends
+          .card-text
+            +chartBlock("language_trends", "400px")
