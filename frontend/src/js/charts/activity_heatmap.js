@@ -4,30 +4,16 @@ let utils = require("../utils/utils"),
 	dateTime = require("../utils/datetime"),
 	echarts = require("../utils/echartsUtils");
 
-const DAYS_OF_WEEK = [
-	"Sunday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday",
-];
-const HOURS = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-// Configuration for heatmap visualization
-const HEATMAP_CONFIG = {
-	min: 0,
-	max: 4,
-	calculable: true,
-	orient: "horizontal",
-	left: "center",
-	bottom: "5%", // Reduced bottom margin
-	inRange: {
-		// From less coding time to more
-		color: ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"],
-	},
-};
+// GitHub-style color palette (from light to dark)
+const COLORS = [
+	"#ebedf0", // Light gray (almost no activity)
+	"#9be9a8", // Light green
+	"#40c463", // Medium green
+	"#30a14e", // Darker green
+	"#216e39", // Very dark green
+];
 
 let base = require("./_base").createBaseChartClass();
 module.exports = {
@@ -37,116 +23,174 @@ module.exports = {
 };
 
 /**
- * Update the heatmap with coding data
+ * Update the heatmap with coding data in GitHub style
  * @param {CodingWatchingMap} dataGroupByDay
  */
 function update(dataGroupByDay) {
-	// Initialize data structure for the heatmap [day][hour]
-	let activityData = Array(7)
-		.fill(0)
-		.map(() => Array(24).fill(0));
+	// Prepare data for calendar view
+	const dates = Object.keys(dataGroupByDay).sort();
+	if (dates.length === 0) {
+		base.getCharts().setOption({
+			title: {
+				text: "Coding Activity Heatmap",
+				left: "center",
+				top: "10",
+				subtext:
+					"No data available. Start coding to see your activity!",
+			},
+		});
+		return;
+	}
+
+	// Find date range
+	const firstDate = new Date(dates[0]);
+	const lastDate = new Date(dates[dates.length - 1]);
+
+	// Make sure we display at least the last 12 weeks (GitHub style)
+	const minWeeks = 12;
+	let startDate = new Date(lastDate);
+	startDate.setDate(startDate.getDate() - minWeeks * 7);
+	if (firstDate > startDate) {
+		startDate = new Date(firstDate);
+	}
+
+	// Create full date range for display
+	const range = [];
+	const currentDate = new Date(startDate);
+	while (currentDate <= lastDate) {
+		range.push(dateTime.getYYYYMMDD(currentDate));
+		currentDate.setDate(currentDate.getDate() + 1);
+	}
+
+	// Process activity data
+	const activityData = [];
 	let maxValue = 1; // Default max for scale
 
-	// Process data
-	Object.keys(dataGroupByDay).forEach((dateStr) => {
+	range.forEach((dateStr) => {
 		const date = new Date(dateStr);
-		const dayOfWeek = date.getDay(); // 0-6
+		const dayData = dataGroupByDay[dateStr] || { coding: 0 };
 
-		// Get the hourly data for this day if available
-		const hourlyData = dataGroupByDay[dateStr].hourly || {};
+		// Convert coding time to minutes for easier reading
+		const value = dayData.coding / 60000; // Convert ms to minutes
 
-		// Sum up activity per hour
-		Object.keys(hourlyData).forEach((hour) => {
-			const hourNum = parseInt(hour);
-			if (hourNum >= 0 && hourNum < 24) {
-				const value = hourlyData[hour].coding / 60000; // Convert ms to minutes
-				activityData[dayOfWeek][hourNum] += value;
+		// Update max value for scale
+		if (value > maxValue) {
+			maxValue = value;
+		}
 
-				// Track max value for scale
-				if (activityData[dayOfWeek][hourNum] > maxValue) {
-					maxValue = activityData[dayOfWeek][hourNum];
-				}
-			}
-		});
+		// Format: [Date, Value]
+		activityData.push([
+			dateStr,
+			value > 0 ? Math.round(value) : 0, // Round to whole minutes
+		]);
 	});
 
-	// Format data for echarts
-	const formattedData = [];
-	activityData.forEach((dayData, dayIndex) => {
-		dayData.forEach((value, hourIndex) => {
-			// Always include all data points for consistent display
-			formattedData.push([
-				hourIndex,
-				dayIndex,
-				value > 0 ? value.toFixed(2) : 0,
-			]);
-		});
-	});
-
-	// Update visualization config based on actual data
-	const visualMapConfig = Object.assign({}, HEATMAP_CONFIG, {
-		max: Math.ceil(maxValue),
-	});
+	// Calculate color thresholds based on max value (GitHub style)
+	const colorThresholds = [
+		0,
+		Math.max(1, Math.ceil(maxValue / 20)), // Minimal activity
+		Math.ceil(maxValue / 10),
+		Math.ceil(maxValue / 4),
+		Math.ceil(maxValue),
+	];
 
 	base.getCharts().setOption({
 		title: {
-			top: "0",
+			top: "10",
 			left: "center",
-			text: "Coding Activity Heatmap",
+			text: "Coding Activity Heatmap (GitHub Style)",
+			textStyle: {
+				fontSize: 16,
+			},
+			subtext: "Each cell represents minutes spent coding per day",
+			subtextStyle: {
+				fontSize: 12,
+			},
 		},
 		tooltip: {
 			position: "top",
 			formatter: function (params) {
+				const date = new Date(params.data[0]);
 				return (
-					`${DAYS_OF_WEEK[params.data[1]]} at ${
-						params.data[0]
-					}:00<br>` + `${params.data[2]} mins of coding activity`
+					dateTime.getReadableDateWithAbbr(params.data[0]) +
+					`<br>Coding time: <b>${params.data[1]}</b> mins`
 				);
 			},
 		},
-		grid: {
-			top: "70px", // Increased space for title
-			height: "60%", // Reduced height to prevent overflow
-			left: "50px", // Increased space for Y-axis labels
-			right: "30px",
-		},
-		xAxis: {
-			type: "category",
-			data: HOURS,
-			splitArea: {
-				show: true,
+		visualMap: {
+			min: 0,
+			max: colorThresholds[colorThresholds.length - 1],
+			calculable: true,
+			orient: "horizontal",
+			left: "center",
+			bottom: "5%",
+			textStyle: {
+				fontSize: 10,
 			},
-			axisLabel: {
-				interval: 2, // Show every 2 hours
-				fontSize: 10, // Reduced font size
+			inRange: {
+				color: COLORS,
 			},
-		},
-		yAxis: {
-			type: "category",
-			data: DAYS_OF_WEEK,
-			splitArea: {
-				show: true,
-			},
-			axisLabel: {
-				fontSize: 11, // Appropriate size for day names
-			},
-		},
-		visualMap: [visualMapConfig],
-		series: [
-			{
-				name: "Coding Activity",
-				type: "heatmap",
-				data: formattedData,
-				label: {
-					show: false,
-				},
-				emphasis: {
-					itemStyle: {
-						shadowBlur: 10,
-						shadowColor: "rgba(0, 0, 0, 0.5)",
-					},
+			controller: {
+				inRange: {
+					color: COLORS,
 				},
 			},
-		],
+			pieces: [
+				{ min: 0, max: 0, color: COLORS[0] },
+				{
+					min: colorThresholds[1],
+					max: colorThresholds[2] - 1,
+					color: COLORS[1],
+				},
+				{
+					min: colorThresholds[2],
+					max: colorThresholds[3] - 1,
+					color: COLORS[2],
+				},
+				{
+					min: colorThresholds[3],
+					max: colorThresholds[4] - 1,
+					color: COLORS[3],
+				},
+				{ min: colorThresholds[4], color: COLORS[4] },
+			],
+		},
+		calendar: {
+			top: 80,
+			left: 40,
+			right: 40,
+			bottom: 60,
+			cellSize: ["auto", 15], // GitHub-like square cells
+			range: [range[0], range[range.length - 1]],
+			itemStyle: {
+				borderWidth: 1,
+				borderColor: "#fff",
+			},
+			yearLabel: { show: true },
+			dayLabel: {
+				firstDay: 0, // Start with Sunday
+				nameMap: DAYS_OF_WEEK,
+				fontSize: 10,
+			},
+			monthLabel: {
+				nameMap: "en",
+				fontSize: 10,
+				align: "center",
+			},
+		},
+		series: {
+			type: "heatmap",
+			coordinateSystem: "calendar",
+			data: activityData,
+			label: {
+				show: false,
+			},
+			emphasis: {
+				itemStyle: {
+					shadowBlur: 5,
+					shadowColor: "rgba(0, 0, 0, 0.5)",
+				},
+			},
+		},
 	});
 }
