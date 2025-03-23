@@ -63,10 +63,19 @@ function update(dataGroupByDay) {
 					const color = param.color;
 					const seriesName = param.seriesName;
 					const value = param.value;
+
+					// Format hours to be more readable
+					let formattedValue;
+					if (value < 1) {
+						// If less than 1 hour, show in minutes
+						formattedValue = Math.round(value * 60) + " min";
+					} else {
+						// If more than 1 hour, show hours with one decimal place
+						formattedValue = value.toFixed(1) + " h";
+					}
+
 					result += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>`;
-					result += `${seriesName}: <strong>${value.toFixed(
-						2
-					)} hours</strong><br>`;
+					result += `${seriesName}: <strong>${formattedValue}</strong><br>`;
 				});
 
 				return result;
@@ -113,7 +122,12 @@ function update(dataGroupByDay) {
 				padding: [0, 0, 0, 0], // Remove extra padding
 			},
 			axisLabel: {
-				formatter: "{value} h",
+				formatter: function (value) {
+					// For Y-axis labels, simplify to whole numbers if possible
+					return value % 1 === 0
+						? value + " h"
+						: value.toFixed(1) + " h";
+				},
 				fontSize: 10, // Reduced Y-axis font size
 			},
 			splitLine: {
@@ -145,18 +159,56 @@ function update(dataGroupByDay) {
 				},
 				markPoint: {
 					data: [
-						{ type: "max", name: "Max", symbolSize: 50 }, // Reduced symbol size
-						{ type: "min", name: "Min", symbolSize: 50 },
+						{
+							type: "max",
+							name: "Max",
+							symbolSize: 50,
+							label: {
+								formatter: function (params) {
+									// Format to whole number if possible, one decimal if needed
+									const value = params.data.value;
+									return value % 1 === 0
+										? value + "h"
+										: value.toFixed(1) + "h";
+								},
+								fontSize: 10, // Reduced label font size
+							},
+						},
+						{
+							type: "min",
+							name: "Min",
+							symbolSize: 50,
+							label: {
+								formatter: function (params) {
+									// Format to minutes if less than 1h
+									const value = params.data.value;
+									return value < 1
+										? Math.round(value * 60) + "m"
+										: value % 1 === 0
+										? value + "h"
+										: value.toFixed(1) + "h";
+								},
+								fontSize: 10, // Reduced label font size
+							},
+						},
 					],
-					label: {
-						fontSize: 10, // Reduced label font size
-					},
 				},
 				markLine: {
-					data: [{ type: "average", name: "Avg" }],
-					label: {
-						fontSize: 10, // Reduced label font size
-					},
+					data: [
+						{
+							type: "average",
+							name: "Avg",
+							label: {
+								formatter: function (params) {
+									// Format average to one decimal place
+									return (
+										"Avg: " + params.value.toFixed(1) + "h"
+									);
+								},
+								fontSize: 10, // Reduced label font size
+							},
+						},
+					],
 				},
 			},
 			{

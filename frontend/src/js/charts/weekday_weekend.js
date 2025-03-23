@@ -29,6 +29,10 @@ function update(dataGroupByDay) {
 		"Friday",
 		"Saturday",
 	];
+
+	// Shortened day names for display
+	const shortDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 	const codingValues = days.map((day) => {
 		const dayObj = dayOfWeekData[day] || {};
 		const value = dayObj.coding || 0;
@@ -74,33 +78,73 @@ function update(dataGroupByDay) {
 			text: "Weekday vs Weekend Coding Patterns",
 			left: "center",
 			top: "0", // Changed to string
+			textStyle: {
+				fontSize: 16, // Reduced title size
+			},
 		},
 		tooltip: {
 			trigger: "axis",
+			formatter: function (params) {
+				const day = days[params[0].dataIndex];
+				const value = params[0].value;
+
+				// Format hours to be more readable
+				let formattedValue;
+				if (value < 1) {
+					// If less than 1 hour, show in minutes
+					formattedValue = Math.round(value * 60) + " minutes";
+				} else {
+					// If more than 1 hour, show hours with one decimal place
+					formattedValue = value.toFixed(1) + " hours";
+				}
+
+				return `<strong>${day}</strong><br>Average coding time: <b>${formattedValue}</b>`;
+			},
 		},
 		legend: {
 			data: ["Daily Average", "Weekday Avg", "Weekend Avg"],
 			top: "30", // Changed to string
+			textStyle: {
+				fontSize: 12, // Reduced legend text size
+			},
+			itemWidth: 15, // Reduced legend icon size
+			itemHeight: 10,
 		},
 		grid: {
-			left: "3%",
-			right: "4%",
-			bottom: "3%",
+			left: "10%",
+			right: "10%",
+			bottom: "15%",
 			top: "80", // Changed to string
 			containLabel: true,
 		},
 		xAxis: {
 			type: "category",
-			data: days,
+			data: shortDays, // Use shortened day names
 			axisLabel: {
 				interval: 0,
+				fontSize: 12, // Increased for better readability
 			},
 		},
 		yAxis: {
 			type: "value",
 			name: "Hours",
+			nameTextStyle: {
+				fontSize: 12, // Reduced axis name size
+			},
 			axisLabel: {
-				formatter: "{value} h",
+				formatter: function (value) {
+					// Format to whole number if possible, one decimal if needed
+					return value % 1 === 0
+						? value + " h"
+						: value.toFixed(1) + " h";
+				},
+				fontSize: 10, // Reduced Y-axis font size
+			},
+			splitLine: {
+				lineStyle: {
+					type: "dashed", // Dashed grid lines for better readability
+					opacity: 0.7, // Reduced line opacity
+				},
 			},
 		},
 		series: [
@@ -116,10 +160,39 @@ function update(dataGroupByDay) {
 							: "#4caf50";
 					},
 				},
+				label: {
+					show: true,
+					position: "top",
+					formatter: function (params) {
+						const value = params.value;
+						// Format labels based on value
+						if (value === 0) return "";
+						if (value < 1) return Math.round(value * 60) + "m";
+						return value.toFixed(1) + "h";
+					},
+					fontSize: 10,
+				},
 				markLine: {
 					symbol: ["none", "none"],
 					label: {
-						formatter: "{b}: {c} h",
+						formatter: function (params) {
+							const value = params.value;
+							const prefix = params.name.split(" ")[0];
+							// Format to whole number if possible, one decimal if needed
+							if (value < 1) {
+								return (
+									prefix + ": " + Math.round(value * 60) + "m"
+								);
+							}
+							return (
+								prefix +
+								": " +
+								(value % 1 === 0
+									? value + "h"
+									: value.toFixed(1) + "h")
+							);
+						},
+						fontSize: 10, // Reduced label font size
 					},
 					data: [
 						{
@@ -152,8 +225,34 @@ function update(dataGroupByDay) {
 		],
 	});
 
-	// We can't directly modify DOM in this context because it's not available
-	// The comparison box would be added in the route file
+	// Add information about productivity statistics
+	const weekdayRatio =
+		weekdayWatching > 0 ? (weekdayCoding / weekdayWatching) * 100 : 0;
+	const weekendRatio =
+		weekendWatching > 0 ? (weekendCoding / weekendWatching) * 100 : 0;
+
+	console.log("Weekday vs Weekend Statistics:");
+	console.log(
+		`Weekday Avg: ${weekdayCoding.toFixed(
+			1
+		)}h coding, ${weekdayWatching.toFixed(
+			1
+		)}h watching (${weekdayRatio.toFixed(0)}% productivity)`
+	);
+	console.log(
+		`Weekend Avg: ${weekendCoding.toFixed(
+			1
+		)}h coding, ${weekendWatching.toFixed(
+			1
+		)}h watching (${weekendRatio.toFixed(0)}% productivity)`
+	);
+	console.log(
+		`Difference: ${((weekendCoding / weekdayCoding) * 100 - 100).toFixed(
+			0
+		)}% ${
+			weekendCoding > weekdayCoding ? "more" : "less"
+		} coding on weekends`
+	);
 }
 
 /**
