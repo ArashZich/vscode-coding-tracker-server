@@ -30,11 +30,13 @@ function update(dataGroupByDay) {
 		"Saturday",
 	];
 	const codingValues = days.map((day) => {
-		const value = dayOfWeekData[day]?.coding || 0;
+		const dayObj = dayOfWeekData[day] || {};
+		const value = dayObj.coding || 0;
 		return value ? Number(value) / 3600000 : 0; // Convert to hours
 	});
 	const watchingValues = days.map((day) => {
-		const value = dayOfWeekData[day]?.watching || 0;
+		const dayObj = dayOfWeekData[day] || {};
+		const value = dayObj.watching || 0;
 		return value ? Number(value) / 3600000 : 0;
 	});
 
