@@ -84,7 +84,9 @@ function update(dataGroupByDay) {
 	});
 
 	// Update visualization config based on actual data
-	const visualMapConfig = { ...HEATMAP_CONFIG, max: Math.ceil(maxValue) };
+	const visualMapConfig = Object.assign({}, HEATMAP_CONFIG, {
+		max: Math.ceil(maxValue),
+	});
 
 	base.getCharts().setOption({
 		title: {
