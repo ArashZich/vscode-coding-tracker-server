@@ -73,6 +73,13 @@ function update(data) {
 			text: "Coding Productivity",
 			subtext: "Percentage of watching time spent actively coding",
 			left: "center",
+			top: "10", // Changed to string
+			textStyle: {
+				fontSize: 16, // Reduced title font size
+			},
+			subtextStyle: {
+				fontSize: 12, // Reduced subtitle font size
+			},
 		},
 		tooltip: {
 			trigger: "axis",
@@ -91,27 +98,36 @@ function update(data) {
 		},
 		legend: {
 			data: ["Daily Productivity", "7-Day Average"],
-			top: 30,
+			top: 40, // Proper distance from top
+			textStyle: {
+				fontSize: 11, // Reduced legend font size
+			},
+			itemWidth: 15, // Smaller legend icons
+			itemHeight: 10,
 		},
 		grid: {
-			left: "3%",
-			right: "4%",
-			bottom: "3%",
-			top: 80,
-			containLabel: true,
+			left: "40px", // Increased space for Y-axis labels
+			right: "40px", // Increased space on right
+			bottom: "40px", // Increased space at bottom
+			top: "90px", // Increased space at top for title and legend
+			containLabel: true, // Include labels within grid
 		},
 		toolbox: {
 			feature: {
 				saveAsImage: {},
 			},
+			right: "20px", // Adjusted toolbox position
+			top: "20px",
 		},
 		xAxis: {
 			type: "category",
-			boundaryGap: false,
+			boundaryGap: true, // Allow gap for bar chart
 			data: formattedDates,
 			axisLabel: {
-				interval: Math.ceil(dates.length / 15),
-				rotate: 45,
+				interval: Math.max(1, Math.ceil(dates.length / 15)), // Display max 15 labels
+				rotate: 45, // Rotate labels for better readability
+				fontSize: 10, // Reduced font size
+				margin: 8, // Reduced margin
 			},
 		},
 		yAxis: [
@@ -123,6 +139,10 @@ function update(data) {
 				interval: 10,
 				axisLabel: {
 					formatter: "{value}%",
+					fontSize: 10, // Reduced font size
+				},
+				nameTextStyle: {
+					fontSize: 11, // Reduced font size for axis name
 				},
 				splitLine: {
 					show: true,
@@ -145,10 +165,11 @@ function update(data) {
 		series: [
 			{
 				name: "Daily Productivity",
-				type: "bar",
+				type: "bar", // Explicitly set as "bar"
 				data: productivityData,
+				barWidth: dates.length > 30 ? "60%" : "70%", // Adjust bar width based on data count
 				itemStyle: {
-					borderRadius: [4, 4, 0, 0],
+					borderRadius: [4, 4, 0, 0], // Rounded corners for bars
 				},
 				emphasis: {
 					focus: "series",
@@ -162,13 +183,16 @@ function update(data) {
 								color: "#5470c6",
 								width: 2,
 							},
+							label: {
+								fontSize: 10, // Reduced label font size
+							},
 						},
 					],
 				},
 			},
 			{
 				name: "7-Day Average",
-				type: "line",
+				type: "line", // Explicitly set as "line"
 				data: rollingAverageData,
 				smooth: true,
 				symbol: "none",
@@ -179,11 +203,12 @@ function update(data) {
 				emphasis: {
 					focus: "series",
 				},
+				z: 2, // Ensure displayed above bars
 			},
 		],
 	});
 
-	// Create a statistics box beneath the chart to show summary
+	// Add statistics box below the chart
 	addProductivityStats(data);
 }
 

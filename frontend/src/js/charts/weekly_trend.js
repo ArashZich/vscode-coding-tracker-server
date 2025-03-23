@@ -48,6 +48,10 @@ function update(dataGroupByDay) {
 		title: {
 			text: "Weekly Coding Trends",
 			left: "center",
+			top: "5", // Changed to string
+			textStyle: {
+				fontSize: 16, // Reduced title size
+			},
 		},
 		tooltip: {
 			trigger: "axis",
@@ -67,47 +71,66 @@ function update(dataGroupByDay) {
 
 				return result;
 			},
+			textStyle: {
+				fontSize: 12, // Reduced tooltip text size
+			},
 		},
 		legend: {
 			data: ["Coding", "Watching"],
 			top: 30,
+			textStyle: {
+				fontSize: 12, // Reduced legend text size
+			},
+			itemWidth: 15, // Reduced legend icon size
+			itemHeight: 10,
 		},
 		grid: {
-			left: "3%",
-			right: "4%",
-			bottom: "3%",
-			top: 70,
+			left: "40px", // Increased space for Y labels
+			right: "20px",
+			bottom: "60px", // Increased space for rotated X labels
+			top: "70px", // Increased space for title and legend
 			containLabel: true,
 		},
 		toolbox: {
-			feature: {
-				saveAsImage: {},
-			},
+			show: false, // Remove toolbox to save space
 		},
 		xAxis: {
 			type: "category",
 			boundaryGap: false,
 			data: formattedWeeks,
 			axisLabel: {
-				interval: 0,
-				rotate: 45,
+				interval: 0, // Show all labels
+				rotate: 45, // Rotate labels for better readability
+				fontSize: 10, // Reduced font size
+				margin: 8, // Reduced margin for compactness
 			},
 		},
 		yAxis: {
 			type: "value",
 			name: "Hours",
+			nameTextStyle: {
+				fontSize: 12, // Reduced axis name size
+				padding: [0, 0, 0, 0], // Remove extra padding
+			},
 			axisLabel: {
 				formatter: "{value} h",
+				fontSize: 10, // Reduced Y-axis font size
+			},
+			splitLine: {
+				lineStyle: {
+					type: "dashed", // Dashed grid lines for better readability
+					opacity: 0.7, // Reduced line opacity
+				},
 			},
 		},
 		series: [
 			{
 				name: "Coding",
-				type: "line",
+				type: "line", // Explicitly set as "line"
 				stack: "Total",
 				data: codingData,
 				lineStyle: {
-					width: 3,
+					width: 2.5, // Reduced line thickness
 					color: "#1b5e20",
 				},
 				itemStyle: {
@@ -115,28 +138,34 @@ function update(dataGroupByDay) {
 				},
 				areaStyle: {
 					color: "#4caf50",
-					opacity: 0.4,
+					opacity: 0.3, // Reduced area opacity
 				},
 				emphasis: {
 					focus: "series",
 				},
 				markPoint: {
 					data: [
-						{ type: "max", name: "Max" },
-						{ type: "min", name: "Min" },
+						{ type: "max", name: "Max", symbolSize: 50 }, // Reduced symbol size
+						{ type: "min", name: "Min", symbolSize: 50 },
 					],
+					label: {
+						fontSize: 10, // Reduced label font size
+					},
 				},
 				markLine: {
 					data: [{ type: "average", name: "Avg" }],
+					label: {
+						fontSize: 10, // Reduced label font size
+					},
 				},
 			},
 			{
 				name: "Watching",
-				type: "line",
+				type: "line", // Explicitly set as "line"
 				stack: "Total",
 				data: watchingData,
 				lineStyle: {
-					width: 3,
+					width: 2.5, // Reduced line thickness
 					color: "#01579b",
 				},
 				itemStyle: {
@@ -144,7 +173,7 @@ function update(dataGroupByDay) {
 				},
 				areaStyle: {
 					color: "#2196f3",
-					opacity: 0.4,
+					opacity: 0.3, // Reduced area opacity
 				},
 				emphasis: {
 					focus: "series",

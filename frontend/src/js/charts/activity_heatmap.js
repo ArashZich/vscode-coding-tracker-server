@@ -22,7 +22,7 @@ const HEATMAP_CONFIG = {
 	calculable: true,
 	orient: "horizontal",
 	left: "center",
-	bottom: "15%",
+	bottom: "5%", // Reduced bottom margin
 	inRange: {
 		// From less coding time to more
 		color: ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"],
@@ -70,16 +70,16 @@ function update(dataGroupByDay) {
 		});
 	});
 
-	// Format data for echarts heatmap
+	// Format data for echarts
 	const formattedData = [];
 	activityData.forEach((dayData, dayIndex) => {
 		dayData.forEach((value, hourIndex) => {
-			if (value > 0) {
-				// Only add non-zero data points
-				formattedData.push([hourIndex, dayIndex, value.toFixed(2)]);
-			} else {
-				formattedData.push([hourIndex, dayIndex, 0]);
-			}
+			// Always include all data points for consistent display
+			formattedData.push([
+				hourIndex,
+				dayIndex,
+				value > 0 ? value.toFixed(2) : 0,
+			]);
 		});
 	});
 
@@ -105,10 +105,10 @@ function update(dataGroupByDay) {
 			},
 		},
 		grid: {
-			top: "10%",
-			height: "70%",
-			left: "3%",
-			right: "7%",
+			top: "70px", // Increased space for title
+			height: "60%", // Reduced height to prevent overflow
+			left: "50px", // Increased space for Y-axis labels
+			right: "30px",
 		},
 		xAxis: {
 			type: "category",
@@ -117,7 +117,8 @@ function update(dataGroupByDay) {
 				show: true,
 			},
 			axisLabel: {
-				interval: 2,
+				interval: 2, // Show every 2 hours
+				fontSize: 10, // Reduced font size
 			},
 		},
 		yAxis: {
@@ -125,6 +126,9 @@ function update(dataGroupByDay) {
 			data: DAYS_OF_WEEK,
 			splitArea: {
 				show: true,
+			},
+			axisLabel: {
+				fontSize: 11, // Appropriate size for day names
 			},
 		},
 		visualMap: [visualMapConfig],

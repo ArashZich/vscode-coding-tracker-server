@@ -36,6 +36,7 @@ function update(data) {
 	// Safely extract the data we need
 	const dailyData =
 		data && data.groupBy && data.groupBy.day ? data.groupBy.day : {};
+
 	const languageData =
 		data && data.groupBy && data.groupBy.language
 			? data.groupBy.language
@@ -43,6 +44,25 @@ function update(data) {
 
 	// Get dates we have data for
 	const dates = Object.keys(dailyData).sort();
+
+	if (dates.length === 0) {
+		// If no data, display an error message
+		base.getCharts().setOption({
+			title: {
+				text: "Language Usage Trends",
+				left: "center",
+				subtext: "No data available. Start coding to see trends!",
+			},
+			grid: {
+				left: "3%",
+				right: "4%",
+				bottom: "3%",
+				top: "70", // Changed to string
+				containLabel: true,
+			},
+		});
+		return;
+	}
 
 	// Process language data
 	const languages = {};
@@ -103,7 +123,7 @@ function update(data) {
 
 		seriesData.push({
 			name: lang,
-			type: "line",
+			type: "line", // Explicitly set as "line" type
 			stack: "Total",
 			areaStyle: {
 				color: color,
@@ -123,11 +143,30 @@ function update(data) {
 		});
 	});
 
+	// If no languages were found, add a placeholder series
+	if (seriesData.length === 0) {
+		seriesData.push({
+			name: "No data",
+			type: "line", // Explicitly set as "line" type
+			data: dates.map(() => 0),
+		});
+	}
+
+	// Format dates for display
+	const formattedDates = dates.map((date) => {
+		const dateObj = new Date(date);
+		return dateTime.getMMDD(dateObj);
+	});
+
 	// Create and apply the chart options
 	base.getCharts().setOption({
 		title: {
 			text: "Language Usage Trends",
 			left: "center",
+			top: "5", // Changed to string
+			textStyle: {
+				fontSize: 16, // Reduced title size
+			},
 		},
 		tooltip: {
 			trigger: "axis",
@@ -149,68 +188,75 @@ function update(data) {
 						const value = param.value;
 						total += value;
 
-						const hours = Math.floor(value / 60);
-						const minutes = Math.round(value % 60);
-						const timeStr =
-							hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-
 						result += `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
                             <span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>
                             <span style="flex:1;">${seriesName}:</span>
-                            <strong>${timeStr}</strong>
+                            <strong>${value} min</strong>
                         </div>`;
 					}
 				}
 
 				if (total > 0) {
-					const totalHours = Math.floor(total / 60);
-					const totalMinutes = Math.round(total % 60);
-					const totalStr =
-						totalHours > 0
-							? `${totalHours}h ${totalMinutes}m`
-							: `${totalMinutes}m`;
-
 					result += `<div style="margin-top:10px;border-top:1px solid #eee;padding-top:5px;">
                         <span>Total:</span>
-                        <strong>${totalStr}</strong>
+                        <strong>${total} min</strong>
                     </div>`;
 				}
 
 				return result;
 			},
+			textStyle: {
+				fontSize: 12, // Reduced tooltip text size
+			},
 		},
 		legend: {
-			data: topLanguages,
+			data: topLanguages.length > 0 ? topLanguages : ["No data"],
 			top: 30,
+			textStyle: {
+				fontSize: 12, // Reduced legend text size
+			},
+			itemWidth: 15, // Reduced legend icon size
+			itemHeight: 10,
 		},
 		grid: {
-			left: "3%",
-			right: "4%",
-			bottom: "3%",
-			top: 80,
+			left: "40px", // Increased space for Y labels
+			right: "40px", // Increased right space
+			bottom: "40px", // Increased bottom space
+			top: "80px", // Increased space for title and legend
 			containLabel: true,
 		},
 		toolbox: {
-			feature: {
-				saveAsImage: {},
-			},
+			show: false, // Remove toolbox to save space
 		},
 		xAxis: {
 			type: "category",
 			boundaryGap: false,
-			data: dates,
+			data: formattedDates,
 			axisLabel: {
-				interval: Math.ceil(dates.length / 10),
-				rotate: 45,
+				interval: Math.max(1, Math.ceil(dates.length / 15)), // Show max 15 labels
+				rotate: 45, // Rotate labels for better readability
+				fontSize: 10, // Reduced font size
+				margin: 8, // Reduced margin
 			},
 		},
 		yAxis: {
 			type: "value",
 			name: "Minutes",
+			nameTextStyle: {
+				fontSize: 12, // Reduced axis name size
+				padding: [0, 0, 5, 0], // Adjusted padding
+			},
 			axisLabel: {
 				formatter: "{value} min",
+				fontSize: 10, // Reduced Y-axis font size
+			},
+			splitLine: {
+				lineStyle: {
+					type: "dashed", // Dashed grid lines for better readability
+					opacity: 0.7, // Reduced line opacity
+				},
 			},
 		},
-		series: seriesData,
+		series: seriesData, // Now seriesData contains items with explicit "line" type
 	});
 }
