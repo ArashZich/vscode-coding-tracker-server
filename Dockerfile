@@ -6,6 +6,9 @@ COPY . .
 
 RUN npm install --no-audit --no-fund
 
+# اضافه کردن دستور برای بیلد کردن فرانت‌اند
+RUN cd frontend && npm install && npm run build
+
 VOLUME /app/database
 VOLUME /app/tokens
 
