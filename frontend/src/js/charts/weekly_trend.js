@@ -183,7 +183,51 @@ function update(dataGroupByDay) {
 				emphasis: {
 					focus: "series",
 				},
-				// markPoint and markLine removed
+				markPoint: {
+					symbol: "pin",
+					symbolSize: 35,
+					data: [
+						{
+							type: "max",
+							name: "Max",
+							label: {
+								formatter: function (params) {
+									return "Max";
+								},
+								fontSize: 10,
+							},
+						},
+						{
+							type: "min",
+							name: "Min",
+							label: {
+								formatter: function (params) {
+									return "Min";
+								},
+								fontSize: 10,
+							},
+						},
+					],
+				},
+				markLine: {
+					lineStyle: {
+						color: "#888",
+						width: 1,
+						type: "dashed",
+					},
+					data: [
+						{
+							type: "average",
+							name: "Avg",
+							label: {
+								formatter: function (params) {
+									return "Avg";
+								},
+								fontSize: 10,
+							},
+						},
+					],
+				},
 			},
 			{
 				name: "Watching",
