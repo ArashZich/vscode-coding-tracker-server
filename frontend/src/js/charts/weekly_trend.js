@@ -71,7 +71,7 @@ function update(dataGroupByDay) {
 						formattedValue = Math.round(value * 60) + " min";
 					} else {
 						// If more than 1 hour, show hours with one decimal place
-						formattedValue = value.toFixed(1) + " h";
+						formattedValue = Math.round(value * 10) / 10 + " h";
 					}
 
 					result += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>`;
@@ -126,7 +126,7 @@ function update(dataGroupByDay) {
 					// For Y-axis labels, simplify to whole numbers if possible
 					return value % 1 === 0
 						? value + " h"
-						: value.toFixed(1) + " h";
+						: Math.round(value * 10) / 10 + " h";
 				},
 				fontSize: 10, // Reduced Y-axis font size
 			},
@@ -165,11 +165,13 @@ function update(dataGroupByDay) {
 							symbolSize: 50,
 							label: {
 								formatter: function (params) {
-									// Format to whole number if possible, one decimal if needed
+									// Format with only one decimal place or none if a whole number
 									const value = params.data.value;
-									return value % 1 === 0
+									return value < 1
+										? Math.round(value * 60) + "m"
+										: value % 1 === 0
 										? value + "h"
-										: value.toFixed(1) + "h";
+										: Math.round(value * 10) / 10 + "h";
 								},
 								fontSize: 10, // Reduced label font size
 							},
@@ -180,13 +182,13 @@ function update(dataGroupByDay) {
 							symbolSize: 50,
 							label: {
 								formatter: function (params) {
-									// Format to minutes if less than 1h
+									// Format with only one decimal place or none if a whole number
 									const value = params.data.value;
 									return value < 1
 										? Math.round(value * 60) + "m"
 										: value % 1 === 0
 										? value + "h"
-										: value.toFixed(1) + "h";
+										: Math.round(value * 10) / 10 + "h";
 								},
 								fontSize: 10, // Reduced label font size
 							},
@@ -200,9 +202,11 @@ function update(dataGroupByDay) {
 							name: "Avg",
 							label: {
 								formatter: function (params) {
-									// Format average to one decimal place
+									// Format average with only one decimal place
 									return (
-										"Avg: " + params.value.toFixed(1) + "h"
+										"Avg: " +
+										Math.round(params.value * 10) / 10 +
+										"h"
 									);
 								},
 								fontSize: 10, // Reduced label font size
