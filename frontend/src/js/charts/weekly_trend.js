@@ -183,55 +183,7 @@ function update(dataGroupByDay) {
 				emphasis: {
 					focus: "series",
 				},
-				markPoint: {
-					data: [
-						{
-							type: "max",
-							name: "Max",
-							symbolSize: 50,
-							label: {
-								formatter: function (params) {
-									return formatTimeValue(
-										params.data.value,
-										false
-									);
-								},
-								fontSize: 10,
-							},
-						},
-						{
-							type: "min",
-							name: "Min",
-							symbolSize: 50,
-							label: {
-								formatter: function (params) {
-									return formatTimeValue(
-										params.data.value,
-										false
-									);
-								},
-								fontSize: 10,
-							},
-						},
-					],
-				},
-				markLine: {
-					data: [
-						{
-							type: "average",
-							name: "Avg",
-							label: {
-								formatter: function (params) {
-									return (
-										"Avg: " +
-										formatTimeValue(params.value, false)
-									);
-								},
-								fontSize: 10,
-							},
-						},
-					],
-				},
+				// markPoint and markLine removed
 			},
 			{
 				name: "Watching",
