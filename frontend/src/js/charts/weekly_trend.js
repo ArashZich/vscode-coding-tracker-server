@@ -184,15 +184,17 @@ function update(dataGroupByDay) {
 					focus: "series",
 				},
 				markPoint: {
-					symbol: "pin",
-					symbolSize: 35,
 					data: [
 						{
 							type: "max",
 							name: "Max",
+							symbolSize: 50,
 							label: {
 								formatter: function (params) {
-									return "Max";
+									return formatTimeValue(
+										params.data.value,
+										false
+									);
 								},
 								fontSize: 10,
 							},
@@ -200,9 +202,13 @@ function update(dataGroupByDay) {
 						{
 							type: "min",
 							name: "Min",
+							symbolSize: 50,
 							label: {
 								formatter: function (params) {
-									return "Min";
+									return formatTimeValue(
+										params.data.value,
+										false
+									);
 								},
 								fontSize: 10,
 							},
@@ -210,18 +216,16 @@ function update(dataGroupByDay) {
 					],
 				},
 				markLine: {
-					lineStyle: {
-						color: "#888",
-						width: 1,
-						type: "dashed",
-					},
 					data: [
 						{
 							type: "average",
 							name: "Avg",
 							label: {
 								formatter: function (params) {
-									return "Avg";
+									return (
+										"Avg: " +
+										formatTimeValue(params.value, false)
+									);
 								},
 								fontSize: 10,
 							},
