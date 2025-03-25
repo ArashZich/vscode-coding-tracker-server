@@ -12,6 +12,42 @@ module.exports = {
 };
 
 /**
+ * Format a time value in hours for better display
+ * @param {number} value Time in hours
+ * @param {boolean} useUnit Whether to include the unit (h or min)
+ * @returns {string} Formatted time
+ */
+function formatTimeValue(value, useUnit = true) {
+	if (value === 0) return useUnit ? "0 h" : "0";
+
+	// If extremely small value (less than a minute), show as "<1 min"
+	if (value < 0.016) {
+		// Less than 1 minute (1/60 ≈ 0.016)
+		return useUnit ? "<1 min" : "<1m";
+	}
+
+	// If less than 1 hour, convert to minutes
+	if (value < 1) {
+		return useUnit
+			? Math.round(value * 60) + " min"
+			: Math.round(value * 60) + "m";
+	}
+
+	// Round to one decimal place
+	const roundedValue = Math.round(value * 10) / 10;
+
+	// If it's a whole number, don't show decimal
+	if (roundedValue === Math.floor(roundedValue)) {
+		return useUnit
+			? Math.floor(roundedValue) + " h"
+			: Math.floor(roundedValue) + "h";
+	}
+
+	// Otherwise show with one decimal place
+	return useUnit ? roundedValue + " h" : roundedValue + "h";
+}
+
+/**
  * Update the weekly trend chart
  * @param {CodingWatchingMap} dataGroupByDay
  */
@@ -48,9 +84,9 @@ function update(dataGroupByDay) {
 		title: {
 			text: "Weekly Coding Trends",
 			left: "center",
-			top: "5", // Changed to string
+			top: "5",
 			textStyle: {
-				fontSize: 16, // Reduced title size
+				fontSize: 16,
 			},
 		},
 		tooltip: {
@@ -64,15 +100,8 @@ function update(dataGroupByDay) {
 					const seriesName = param.seriesName;
 					const value = param.value;
 
-					// Format hours to be more readable
-					let formattedValue;
-					if (value < 1) {
-						// If less than 1 hour, show in minutes
-						formattedValue = Math.round(value * 60) + " min";
-					} else {
-						// If more than 1 hour, show hours with one decimal place
-						formattedValue = Math.round(value * 10) / 10 + " h";
-					}
+					// Format with our helper function
+					const formattedValue = formatTimeValue(value);
 
 					result += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>`;
 					result += `${seriesName}: <strong>${formattedValue}</strong><br>`;
@@ -81,70 +110,67 @@ function update(dataGroupByDay) {
 				return result;
 			},
 			textStyle: {
-				fontSize: 12, // Reduced tooltip text size
+				fontSize: 12,
 			},
 		},
 		legend: {
 			data: ["Coding", "Watching"],
 			top: 30,
 			textStyle: {
-				fontSize: 12, // Reduced legend text size
+				fontSize: 12,
 			},
-			itemWidth: 15, // Reduced legend icon size
+			itemWidth: 15,
 			itemHeight: 10,
 		},
 		grid: {
-			left: "40px", // Increased space for Y labels
+			left: "40px",
 			right: "20px",
-			bottom: "60px", // Increased space for rotated X labels
-			top: "70px", // Increased space for title and legend
+			bottom: "60px",
+			top: "70px",
 			containLabel: true,
 		},
 		toolbox: {
-			show: false, // Remove toolbox to save space
+			show: false,
 		},
 		xAxis: {
 			type: "category",
 			boundaryGap: false,
 			data: formattedWeeks,
 			axisLabel: {
-				interval: 0, // Show all labels
-				rotate: 45, // Rotate labels for better readability
-				fontSize: 10, // Reduced font size
-				margin: 8, // Reduced margin for compactness
+				interval: 0,
+				rotate: 45,
+				fontSize: 10,
+				margin: 8,
 			},
 		},
 		yAxis: {
 			type: "value",
 			name: "Hours",
 			nameTextStyle: {
-				fontSize: 12, // Reduced axis name size
-				padding: [0, 0, 0, 0], // Remove extra padding
+				fontSize: 12,
+				padding: [0, 0, 0, 0],
 			},
 			axisLabel: {
 				formatter: function (value) {
-					// For Y-axis labels, simplify to whole numbers if possible
-					return value % 1 === 0
-						? value + " h"
-						: Math.round(value * 10) / 10 + " h";
+					return formatTimeValue(value);
 				},
-				fontSize: 10, // Reduced Y-axis font size
+				fontSize: 10,
 			},
 			splitLine: {
 				lineStyle: {
-					type: "dashed", // Dashed grid lines for better readability
-					opacity: 0.7, // Reduced line opacity
+					type: "dashed",
+					opacity: 0.7,
 				},
 			},
 		},
 		series: [
 			{
 				name: "Coding",
-				type: "line", // Explicitly set as "line"
+				type: "line",
 				stack: "Total",
 				data: codingData,
 				lineStyle: {
-					width: 2.5, // Reduced line thickness
+					width: 2.5,
 					color: "#1b5e20",
 				},
 				itemStyle: {
@@ -152,7 +178,7 @@ function update(dataGroupByDay) {
 				},
 				areaStyle: {
 					color: "#4caf50",
-					opacity: 0.3, // Reduced area opacity
+					opacity: 0.3,
 				},
 				emphasis: {
 					focus: "series",
@@ -165,15 +191,12 @@ function update(dataGroupByDay) {
 							symbolSize: 50,
 							label: {
 								formatter: function (params) {
-									// Format with only one decimal place or none if a whole number
-									const value = params.data.value;
-									return value < 1
-										? Math.round(value * 60) + "m"
-										: value % 1 === 0
-										? value + "h"
-										: Math.round(value * 10) / 10 + "h";
+									return formatTimeValue(
+										params.data.value,
+										false
+									);
 								},
-								fontSize: 10, // Reduced label font size
+								fontSize: 10,
 							},
 						},
 						{
@@ -182,15 +205,12 @@ function update(dataGroupByDay) {
 							symbolSize: 50,
 							label: {
 								formatter: function (params) {
-									// Format with only one decimal place or none if a whole number
-									const value = params.data.value;
-									return value < 1
-										? Math.round(value * 60) + "m"
-										: value % 1 === 0
-										? value + "h"
-										: Math.round(value * 10) / 10 + "h";
+									return formatTimeValue(
+										params.data.value,
+										false
+									);
 								},
-								fontSize: 10, // Reduced label font size
+								fontSize: 10,
 							},
 						},
 					],
@@ -202,14 +222,12 @@ function update(dataGroupByDay) {
 							name: "Avg",
 							label: {
 								formatter: function (params) {
-									// Format average with only one decimal place
 									return (
 										"Avg: " +
-										Math.round(params.value * 10) / 10 +
-										"h"
+										formatTimeValue(params.value, false)
 									);
 								},
-								fontSize: 10, // Reduced label font size
+								fontSize: 10,
 							},
 						},
 					],
@@ -217,11 +235,11 @@ function update(dataGroupByDay) {
 			},
 			{
 				name: "Watching",
-				type: "line", // Explicitly set as "line"
+				type: "line",
 				stack: "Total",
 				data: watchingData,
 				lineStyle: {
-					width: 2.5, // Reduced line thickness
+					width: 2.5,
 					color: "#01579b",
 				},
 				itemStyle: {
@@ -229,7 +247,7 @@ function update(dataGroupByDay) {
 				},
 				areaStyle: {
 					color: "#2196f3",
-					opacity: 0.3, // Reduced area opacity
+					opacity: 0.3,
 				},
 				emphasis: {
 					focus: "series",
