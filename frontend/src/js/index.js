@@ -16,6 +16,7 @@ function App() {
 			require("./routes/languages"),
 			require("./routes/vcs"),
 			require("./routes/productivity"), // Add the new productivity route
+			require("./routes/time_analysis"),
 
 			// open special sub-page following hash(#xxx) in URL, and "overview" sub-page by default
 		])

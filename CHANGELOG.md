@@ -1,5 +1,19 @@
 # CHANGELOG
 
+### 0.8.0 (2025/09/12)
+
+1. **Added "Productivity" Dashboard:** A new advanced analytics page (`/report/#productivity`) that provides a comprehensive overview of coding habits. Includes charts for:
+    - Daily Active Time (Coding vs. Other)
+    - Focus Distribution (by Language)
+    - Project Breakdown
+    - Weekday vs. Weekend Comparison
+2. **Added "Active Time Analysis" Dashboard:** A new page (`/report/#time_analysis`) dedicated to visualizing "Active Coding Time" versus "Thinking/Review Time" with a detailed daily breakdown and summary statistics.
+3. **UI/UX Improvements:**
+    - Improved time formatting across all new charts to be more readable (e.g., "2h 42m" instead of "2.7 hours").
+    - Updated color schemes for better readability and a more modern look.
+4. **Documentation:**
+    - Completely rewrote and updated the `README.md` file in Persian with a clearer structure, detailed explanations of architecture, features, and a simplified installation guide.
+
 ### 0.6.1 (2018/xx/xx) **Developing on**
 
 1. add group by directory for files in project (**Working...**)
